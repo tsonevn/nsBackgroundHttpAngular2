@@ -3,6 +3,7 @@ import {session, Session, Task} from "nativescript-background-http";
 import {knownFolders } from "file-system";
 import {Page} from "ui/page";
 import {Image} from "ui/image";
+import {Progress} from "ui/progress"
 class tmpTask{
     upload: number;
 
@@ -20,6 +21,7 @@ export class AppComponent {
     public imageName:string="bigpic";
     private documents;
     public task:Task;
+    public value = 0;
 
     constructor(private page:Page, private zone:NgZone){
          this.documents = knownFolders.currentApp();
@@ -38,20 +40,33 @@ export class AppComponent {
     onTap2(){
         var params = [{name: "test", value: "value"}, {name:"fileToUpload", filename: this.fileURL, mimeType: 'image/jpeg'}];
        this.task = this.newsession.multipartUpload(params, this.request);
-       this.task.on("progress", this.logEvent);
+       this.task.on("progress", (e)=>{
+            var progress:Progress =<Progress> this.page.getViewById("prgressid");
+            progress.value = e.currentBytes;
+            progress.maxValue = e.totalBytes;
+       });
        this.task.on("error", this.logEvent);
        this.task.on("complete", this.logEvent);
     }
     onTap(){
        this.task = this.newsession.uploadFile(this.fileURL, this.request);
-       this.task.on("progress", this.logEvent);
+       this.task.on("progress", (e)=>{
+            var progress:Progress =<Progress> this.page.getViewById("prgressid");
+            progress.value = e.currentBytes;
+            progress.maxValue = e.totalBytes;
+       });
        this.task.on("error", this.logEvent);
        this.task.on("complete", this.logEvent);
+       
     }
     logEvent(e) {
+        
         console.log("currentBytes: " + e.currentBytes);
-        console.log("totalBytes: " + e.totalBytes);
-        console.log("eventName: " + e.eventName);
+        if((e.currentBytes != null) && (e.currentBytes !=undefined)){
+
+            
+        }
+       
         
     }
 }
